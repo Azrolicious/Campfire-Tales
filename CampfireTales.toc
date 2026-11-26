@@ -1,0 +1,20 @@
+## Interface: 16001
+## Title: Campfire Tales
+## Notes: Greetings, jokes, riddles and stories to share around the fire, a click away. Opens when you sit down at a campfire. Works with Krump and Juju.
+## Author: Azrolicious
+## Version: 1.0.0
+## Category: Roleplay
+## IconTexture: Interface\Icons\Spell_Fire_Fire
+## OptionalDeps: Krump, Juju
+## SavedVariables: CampfireTalesDB
+## AddonCompartmentFunc: CampfireTales_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: CampfireTales_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: CampfireTales_OnAddonCompartmentLeave
+
+Tales.lua
+CampfireTales.lua
+Telling.lua
+Accents.lua
+Fire.lua
+Window.lua
+Options.lua

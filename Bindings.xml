@@ -1,0 +1,8 @@
+<Bindings>
+	<Binding name="CAMPFIRETALES_TOGGLE" header="CAMPFIRETALES" category="ADDONS">
+		CampfireTales_Toggle()
+	</Binding>
+	<Binding name="CAMPFIRETALES_NEXT" category="ADDONS">
+		CampfireTales_NextLine()
+	</Binding>
+</Bindings>
