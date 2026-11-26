@@ -36,6 +36,26 @@ function ns.BuildOptions()
 		"Opens the Campfire Tales window when you sit down by a campfire and the Welcoming Campfire buff starts counting down. Type /tales to open it any time.",
 		ns.DEFAULTS.autoOpen, "autoOpen")
 
+	-- How long the next line of a tale waits, so everyone can read the last.
+	if Settings.CreateDropdown and Settings.CreateControlTextContainer then
+		local paceSetting = Settings.RegisterProxySetting(category, "CAMPFIRETALES_PACE", Settings.VarType.String,
+			"Time to read between lines", ns.DEFAULTS.pace,
+			function() return db.pace end,
+			function(value)
+				db.pace = value
+				ns.Refresh()
+			end)
+		local function paceOptions()
+			local container = Settings.CreateControlTextContainer()
+			for _, key in ipairs(ns.PACE_ORDER) do
+				container:Add(key, ns.PACE_NAMES[key][1], ns.PACE_NAMES[key][2])
+			end
+			return container:GetData()
+		end
+		Settings.CreateDropdown(category, paceSetting, paceOptions,
+			"In a story, joke or riddle, how long the next line waits after you say one, so that everyone has time to read it. Pauses written into the tale, such as the beat before a punchline, come on top. The window counts down, and Say it now skips the wait.")
+	end
+
 	checkbox("CAMPFIRETALES_ACTIONS_NOW", "Do actions straight away",
 		"A button with a single action on it, such as poking the fire, does it as soon as you click. Switch this off to have actions go into the chat line like everything else, so you can change them before pressing Enter.",
 		ns.DEFAULTS.actionsNow, "actionsNow")

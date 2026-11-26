@@ -22,6 +22,7 @@ local DEFAULTS = {
 	autoOpen = true,      -- open the window when you sit down at a campfire
 	actionsNow = true,    -- do a one-line action as soon as its button is clicked
 	accents = true,       -- show Krump's or Juju's categories while one of them is talking
+	pace = "steady",      -- how long the next line of a story waits: quick, steady, slow or off
 	category = "greetings", -- the category the window opens on
 	mine = {},            -- your own buttons: { label = ..., lines = { ... } }, in order
 }
@@ -142,8 +143,17 @@ local KINDS = {
 	["/e"] = "EMOTE", ["/me"] = "EMOTE", ["/emote"] = "EMOTE",
 }
 
+local DEFAULT_WAIT = 3
+local MAX_WAIT = 30
+
 -- "/e pokes the fire." -> "EMOTE", "pokes the fire."
+-- "/wait 4" -> "WAIT", 4 (a pause of 4 seconds; "/wait" alone is 3)
 function ns.ParseLine(line)
+	local seconds = strmatch(line, "^%s*/[Ww][Aa][Ii][Tt]%s*(%d*)%s*$")
+	if seconds then
+		seconds = tonumber(seconds) or DEFAULT_WAIT
+		return "WAIT", math.min(seconds, MAX_WAIT)
+	end
 	local command, rest = strmatch(line, "^%s*(/%a+)%s+(.-)%s*$")
 	local kind = command and KINDS[strlower(command)]
 	if kind then
@@ -153,16 +163,54 @@ function ns.ParseLine(line)
 end
 
 -- A button's lines, filled in and ready to say: { kind = ..., text = ... }.
+-- A /wait becomes the pause before the line after it: line.beat, in seconds.
+-- The button's last line gets its category's beat, unless it has a /wait
+-- of its own, and the category's name for it (line.label = "punchline").
 function ns.PrepareLines(entry, context)
 	context = context or ns.Context()
 	local prepared = {}
+	local beat = 0
 	for _, line in ipairs(entry.lines or {}) do
 		local kind, text = ns.ParseLine(ns.Fill(line, context))
-		if strfind(text, "%S") then
-			prepared[#prepared + 1] = { kind = kind, text = text }
+		if kind == "WAIT" then
+			beat = beat + text
+		elseif strfind(text, "%S") then
+			prepared[#prepared + 1] = { kind = kind, text = text, beat = #prepared > 0 and beat or 0 }
+			beat = 0
 		end
 	end
+	local last = prepared[#prepared]
+	if last and #prepared > 1 then
+		if last.beat == 0 and entry.beat then
+			last.beat = entry.beat
+		end
+		last.label = entry.last
+	end
 	return prepared
+end
+
+-- True for a category whose buttons tell more than one line: those show
+-- the whole tale in a block of text under the buttons.
+function ns.HasPage(category)
+	if category.mine or category.emotes then
+		return false
+	end
+	if category.hasPage == nil then
+		category.hasPage = false
+		for _, entry in ipairs(ns.Tales.Entries(category)) do
+			local spoken = 0
+			for _, line in ipairs(entry.lines) do
+				if ns.ParseLine(line) ~= "WAIT" then
+					spoken = spoken + 1
+				end
+			end
+			if spoken > 1 then
+				category.hasPage = true
+				break
+			end
+		end
+	end
+	return category.hasPage
 end
 
 ---------------------------------------------------------------------------
@@ -281,7 +329,13 @@ function ns.SaveMine(label, text)
 			lines[#lines + 1] = line
 		end
 	end
-	if #lines == 0 then
+	local spoken = 0
+	for _, line in ipairs(lines) do
+		if ns.ParseLine(line) ~= "WAIT" then
+			spoken = spoken + 1
+		end
+	end
+	if spoken == 0 then
 		return false, "Type what to say. Start with /e for an action, and put // between lines for a story."
 	end
 	if #lines > MAX_LINES then
@@ -296,8 +350,8 @@ function ns.SaveMine(label, text)
 	end
 	ns.db.mine[index] = { label = label, lines = lines }
 	ns.Refresh()
-	if #lines > 1 then
-		return true, "Saved \"" .. label .. "\", " .. #lines .. " lines."
+	if spoken > 1 then
+		return true, "Saved \"" .. label .. "\", " .. spoken .. " lines."
 	end
 	return true, "Saved \"" .. label .. "\"."
 end
@@ -451,6 +505,9 @@ frame:SetScript("OnEvent", function(_, event, name)
 			end
 		end
 		CampfireTalesDB.mine = kept
+		if not (ns.PACE_NAMES and ns.PACE_NAMES[CampfireTalesDB.pace]) then
+			CampfireTalesDB.pace = DEFAULTS.pace
+		end
 		ns.db = CampfireTalesDB
 	elseif event == "PLAYER_LOGIN" then
 		if not ns.db then

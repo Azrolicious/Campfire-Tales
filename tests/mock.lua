@@ -349,10 +349,19 @@ function Mock.new(config)
 			return texture
 		end
 		function frame:CreateFontString()
-			local fontString = region({ "SetJustifyH", "SetJustifyV", "SetWordWrap", "SetTextColor" })
+			local fontString = region({ "SetJustifyH", "SetJustifyV", "SetWordWrap" })
+			function fontString:SetTextColor(r, g, b) self.color = { r, g, b } end
 			function fontString:SetText(text) self.text = text end
 			function fontString:GetText() return self.text end
-			function fontString:GetStringHeight() return 14 end
+			-- Wraps at its width (about 6 pixels a letter), 14 pixels a row.
+			function fontString:SetWidth(width) self.width = width end
+			function fontString:GetStringHeight()
+				local plain = (self.text and tostring(self.text) or ""):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+				if not self.width or self.width <= 0 then
+					return 14
+				end
+				return 14 * math.max(1, math.ceil(#plain * 6 / self.width))
+			end
 			function fontString:GetStringWidth() return 7 * #(self.text or "") end
 			frame.fontString = fontString
 			frame.fontStrings[#frame.fontStrings + 1] = fontString
@@ -382,6 +391,8 @@ function Mock.new(config)
 			function frame:SetText(text) self.text = text end
 			function frame:GetText() return self.text end
 			function frame:RegisterForClicks() end
+			function frame:LockHighlight() self.locked = true end
+			function frame:UnlockHighlight() self.locked = false end
 			frame.enabled = true
 			function frame:SetEnabled(enabled) self.enabled = enabled and true or false end
 			function frame:IsEnabled() return self.enabled end
