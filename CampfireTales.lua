@@ -23,6 +23,7 @@ local DEFAULTS = {
 	actionsNow = true,    -- do a one-line action as soon as its button is clicked
 	accents = true,       -- show Krump's or Juju's categories while one of them is talking
 	pace = "steady",      -- how long the next line of a story waits: quick, steady, slow or off
+	crude = true,         -- the crude jokes, insults and tavern tales
 	category = "greetings", -- the category the window opens on
 	mine = {},            -- your own buttons: { label = ..., lines = { ... } }, in order
 }
@@ -225,10 +226,17 @@ local mineCategory = {
 	mine = true,
 }
 
+-- Crude humour can be switched off in the settings.
+local function shown(item)
+	return not item.crude or not ns.db or ns.db.crude
+end
+
 function ns.Categories()
 	local list = {}
 	for _, category in ipairs(ns.Tales.categories) do
-		list[#list + 1] = category
+		if shown(category) then
+			list[#list + 1] = category
+		end
 	end
 	if ns.AccentCategories and (not ns.db or ns.db.accents) then
 		for _, category in ipairs(ns.AccentCategories()) do
@@ -272,7 +280,17 @@ function ns.EntriesOf(category)
 	elseif category.emotes then
 		return ns.AccentEmotes(category.accent)
 	end
-	return ns.Tales.Entries(category)
+	local entries = ns.Tales.Entries(category)
+	if ns.db and not ns.db.crude then
+		local clean = {}
+		for _, entry in ipairs(entries) do
+			if shown(entry) then
+				clean[#clean + 1] = entry
+			end
+		end
+		return clean
+	end
+	return entries
 end
 
 function ns.RandomEntry(category)

@@ -2,7 +2,7 @@
 
 Something to say around the fire.
 
-Campfire Tales is an addon for **World of Warcraft: Forever**. Sit down at a campfire and, as the Welcoming Campfire buff starts counting down, a window opens full of things to say while you wait: greetings, small talk, jokes (clean and crude), riddles, short stories, tales of glory, spooky tales, songs, toasts and farewells. Click a button and your character says it.
+Campfire Tales is an addon for **World of Warcraft: Forever**. Sit down at a campfire and, as the Welcoming Campfire buff starts counting down, a window opens full of things to say while you wait: greetings, small talk, jokes clean and filthy, insults, riddles, short stories, bawdy tavern tales, tales of glory, spooky tales, songs, toasts and farewells. Click a button and your character says it.
 
 Stories and jokes are told in parts. After each part, the next waits until everyone around the fire has had time to read it, with a beat before every punchline and a long pause before the ghost appears. The window shows the whole tale as you tell it, and counts down to the next part.
 
@@ -11,9 +11,11 @@ Stories and jokes are told in parts. After each part, the next waits until every
 | Greetings | Well met, Grukk! Pull up a log, the fire's warm. |
 | Small Talk | What's the strangest place you've ever pitched camp? |
 | Jokes | How many gnomes does it take to light a campfire? ... Five. ... One to strike the flint, and four to build a machine that does it for them. ... It explodes. |
-| Crude Jokes | Never let the dwarves eat beans the night before a siege. ... Oh, we won. ... But only because the enemy were downwind, and they surrendered. |
+| Crude Jokes | Leeroy Jenkins finally talked a girl into coming back to his room. ... He was done before she'd finished explaining the plan. ... At least he had chicken. |
+| Insults | Thrall, your father was an ogre, and your mother was the uglier of his two heads. |
 | Riddles | I eat wood but drink nothing. Give me water and I die. What am I? ... A fire! |
 | Short Stories | The Stubborn Kodo, The Last Ember, The Fish That Got Away, Hogger's Day Off, and more |
+| Tavern Tales | The Dwarf's Bet, The Ogre's Love Letter, The Paladin's Confession, Drinking with Dwarves, a song not for the kiddies, and rude toasts |
 | Tales of Glory | Three on the Bridge, The Night at Light's Hope, The Dragon at Dawn, The Fireworks Cart, and boasts: "I once fought off ten kobolds with one hand." |
 | Spooky Tales | The Empty Bedroll, The Lantern in Duskwood, Don't Count the Sitters, and more |
 | Songs | Song of the Road, The Dry Mug, Embers Low, Mrgl the Brave |
@@ -64,6 +66,12 @@ Each line goes into your chat line in turn: press Enter to say it. The next line
 - **Say it now**, at the bottom of the window, skips the wait.
 - **Click any line** in the block of text to tell the tale from there: to skip ahead, or say a line again.
 - How long a line waits for readers is up to you: **Time to read between lines** in the settings (Quick, Steady, Slow or No waiting).
+
+### Crude humour
+
+**Crude Jokes**, **Insults** and **Tavern Tales** are rude: drink, farts, piss, swearing, and a lot of who went upstairs with whom, all in Azeroth. Insults are banter for friends: target someone to say it to their face, or it goes to "Mate". Untick **Crude humour** in the settings to hide all three, along with the rude Ork Yarns and Troll Tales, when you are somewhere they would not go down well.
+
+Players with the game's mature language filter on see the strongest words as symbols, so no punchline hangs on a swear word. On an Orc, Krump turns them into Ork ones anyway: *"I bet 'im a 'undred teef I could squig juice all ova yer bar an' ya'd larf 'bout it."*
 
 | To do this | Do this |
 | --- | --- |
@@ -151,6 +159,7 @@ Under Options > AddOns > Campfire Tales:
 
 - **Open when I sit at a campfire.** On to begin with.
 - **Time to read between lines.** How long the next line of a tale waits after you say one: Quick, Steady (to begin with), Slow, or No waiting, for a second between lines and no pauses. Pauses written into a tale come on top of Quick, Steady and Slow.
+- **Crude humour.** The Crude Jokes, Insults and Tavern Tales categories, and the rude Ork Yarns and Troll Tales. On to begin with.
 - **Do actions straight away.** Switch it off to have actions go into the chat line too, so you can change them before pressing Enter.
 - **Krump and Juju categories.** Ork Yarns, Troll Tales and the emote buttons, while Krump or Juju is talking.
 
@@ -166,7 +175,7 @@ Under Key Bindings > AddOns > Campfire Tales:
 | Command | What it does |
 | --- | --- |
 | `/tales` | Open or close the window (`/campfiretales` works too) |
-| `/tales jokes` | Open it on a category: greetings, talk, jokes, crude, riddles, stories, glory, spooky, songs, toasts, fireside, farewells, mine |
+| `/tales jokes` | Open it on a category: greetings, talk, jokes, crude, insults, riddles, stories, tavern, glory, spooky, songs, toasts, fireside, farewells, mine |
 | `/tales random jokes` | Say something from a category at random |
 | `/tales next` | Put the next line of a story in the chat line, without waiting |
 | `/tales stop` | Stop telling the story |

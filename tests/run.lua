@@ -233,12 +233,12 @@ do
 		checkCategory(category, seenKeys)
 		check("accent tales are for Krump or Juju: " .. name, name == "Krump" or name == "Juju", true)
 	end
-	check("twelve categories to begin with", #ns.Tales.categories, 12)
+	check("fourteen categories to begin with", #ns.Tales.categories, 14)
 	local names = {}
 	for _, category in ipairs(ns.Tales.categories) do
 		names[#names + 1] = category.name
 	end
-	check("the categories, in order", table.concat(names, ", "), "Greetings, Small Talk, Jokes, Crude Jokes, Riddles, Short Stories, Tales of Glory, Spooky Tales, Songs, Toasts, Fireside, Farewells")
+	check("the categories, in order", table.concat(names, ", "), "Greetings, Small Talk, Jokes, Crude Jokes, Insults, Riddles, Short Stories, Tavern Tales, Tales of Glory, Spooky Tales, Songs, Toasts, Fireside, Farewells")
 
 	-- Which have a page of text under their buttons.
 	local paged = {}
@@ -247,11 +247,13 @@ do
 			paged[#paged + 1] = category.key
 		end
 	end
-	check("the categories with a page", table.concat(paged, ", "), "jokes, crude, riddles, stories, glory, spooky, songs")
+	check("the categories with a page", table.concat(paged, ", "), "jokes, crude, riddles, stories, tavern, glory, spooky, songs")
 	check("Ork Yarns has a page", ns.HasPage(ns.Tales.accents.Krump), true)
 	check("Troll Tales has a page", ns.HasPage(ns.Tales.accents.Juju), true)
-	check("plenty of crude jokes", #ns.Tales.Entries(ns.Tales.categories[4]) >= 10, true)
-	check("plenty of glory", #ns.Tales.Entries(ns.Tales.categories[7]) >= 6, true)
+	check("plenty of crude jokes", #ns.Tales.Entries(ns.FindCategory("crude")) >= 15, true)
+	check("plenty of insults", #ns.Tales.Entries(ns.FindCategory("insults")) >= 12, true)
+	check("plenty of tavern tales", #ns.Tales.Entries(ns.FindCategory("tavern")) >= 6, true)
+	check("plenty of glory", #ns.Tales.Entries(ns.FindCategory("glory")) >= 6, true)
 end
 
 ---------------------------------------------------------------------------
@@ -366,7 +368,7 @@ do
 	check("window: has a title", frame.title, "Campfire Tales")
 	game.env.SlashCmdList.CAMPFIRETALES("")
 	check("window: /tales opens it", frame.shown, true)
-	check("window: categories", categoryNames(game), "Greetings, Small Talk, Jokes, Crude Jokes, Riddles, Short Stories, Tales of Glory, Spooky Tales, Songs, Toasts, Fireside, Farewells, Your Own")
+	check("window: categories", categoryNames(game), "Greetings, Small Talk, Jokes, Crude Jokes, Insults, Riddles, Short Stories, Tavern Tales, Tales of Glory, Spooky Tales, Songs, Toasts, Fireside, Farewells, Your Own")
 	check("window: opens on Greetings", frame.Title.text, "Greetings")
 	check("window: Greetings is picked", categoryButton(game, "Greetings").Selected.shown, true)
 	check("window: a button for each greeting", shownButtons(game), #game.ns.Tales.Entries(game.ns.Tales.categories[1]))
@@ -742,13 +744,16 @@ do
 	-- Crude jokes and tales of glory are told the same way.
 	game.settings.CAMPFIRETALES_PACE.set("steady")
 	showCategory(game, "Crude Jokes")
-	tell(game, "Orc table manners")
-	for _ = 1, 3 do
-		game:pressEnter()
-		game:wait(15)
-	end
-	check("crude: the punchline", game.openedChat, "/s Three: punch whoever complained about step two.")
+	tell(game, "Orc foreplay")
 	game:pressEnter()
+	game:wait(ns.ReadingTime("What's orc foreplay?") + 2.9)
+	check("crude: a long beat", game.openedChat, "/s What's orc foreplay?")
+	game:wait(0.2)
+	check("crude: the punchline", game.openedChat, "/s \"Brace yourself.\"")
+	game:pressEnter()
+	check("crude: two pages of them", window(game).PageText.text, "1 / 2")
+	window(game).NextPage:click()
+	check("crude: the second page", button(game, "Orc table manners") ~= nil, true)
 	showCategory(game, "Tales of Glory")
 	tell(game, "Three on the Bridge")
 	local glory = spoken(entryOf(ns, "glory", "Three on the Bridge"))
@@ -786,6 +791,47 @@ do
 	check("long: the start has gone", rowOf(game, 1), nil)
 	check("long: says there is more above", frame.MoreAbove.shown, true)
 	ns.StopTelling()
+end
+
+---------------------------------------------------------------------------
+-- Crude humour, and switching it off
+---------------------------------------------------------------------------
+
+do
+	local game = newGame({ name = "Grokk" })
+	local frame = window(game)
+	local ns = game.ns
+	openWindow(game, "Insults")
+	check("insult: one-liners, no page", frame.Page.shown, false)
+	click(game, "Gnoll's armpit")
+	check("insult: to nobody in particular", game.openedChat, "/s Mate, you smell like a gnoll's armpit at the end of a long march.")
+	game:pressEscape()
+	game.target = "Thrall"
+	click(game, "Gnoll's armpit")
+	check("insult: to their face", game.openedChat, "/s Thrall, you smell like a gnoll's armpit at the end of a long march.")
+	game:pressEscape()
+	ns.StopTelling()
+	game.target = nil
+
+	showCategory(game, "Tavern Tales")
+	tell(game, "The Dwarf's Bet")
+	local bet = spoken(entryOf(ns, "tavern", "The Dwarf's Bet"))
+	for index = 1, #bet do
+		local said = game:pressEnter()
+		check("tavern: line " .. index, said and said.text, bet[index])
+		game:wait(20)
+	end
+	check("tavern: told", ns.TellingState(), nil)
+
+	game.settings.CAMPFIRETALES_CRUDE.set(false)
+	check("crude off: the setting", ns.db.crude, false)
+	check("crude off: those categories are gone", categoryNames(game),
+		"Greetings, Small Talk, Jokes, Riddles, Short Stories, Tales of Glory, Spooky Tales, Songs, Toasts, Fireside, Farewells, Your Own")
+	check("crude off: back to the first category", frame.Title.text, "Greetings")
+	game.env.SlashCmdList.CAMPFIRETALES("random crude")
+	check("crude off: not at random either", contains(game.printed[#game.printed], "No category called \"crude\""), true)
+	game.settings.CAMPFIRETALES_CRUDE.set(true)
+	check("crude on: they are back", categoryButton(game, "Crude Jokes") ~= nil, true)
 end
 
 ---------------------------------------------------------------------------
@@ -1025,7 +1071,7 @@ else
 	check("krump: Krump is talking", game.ns.TalkingAccent(), "Krump")
 	openWindow(game)
 	check("krump: Ork categories", categoryNames(game),
-		"Greetings, Small Talk, Jokes, Crude Jokes, Riddles, Short Stories, Tales of Glory, Spooky Tales, Songs, Toasts, Fireside, Farewells, Ork Yarns, Krump Emotes, Your Own")
+		"Greetings, Small Talk, Jokes, Crude Jokes, Insults, Riddles, Short Stories, Tavern Tales, Tales of Glory, Spooky Tales, Songs, Toasts, Fireside, Farewells, Ork Yarns, Krump Emotes, Your Own")
 	check("krump: says so at the top", frame.AccentButton.shown and contains(frame.AccentText.text, "is talking: words come out in Ork"), true)
 	check("krump: in Krump's green", contains(frame.AccentText.text, "|cff6fbf3fKrump|r"), true)
 
@@ -1070,6 +1116,14 @@ else
 	check("krump: plain action straight away", #game.opened, before)
 	check("krump: plain action done", game.sent[#game.sent].text, "pokes the fire with a stick, sending sparks dancing into the dark.")
 
+	-- The rude Ork yarns go when crude humour is off; the rest stay.
+	showCategory(game, "Ork Yarns")
+	check("krump: a rude yarn", button(game, "Ork love poem") ~= nil, true)
+	game.settings.CAMPFIRETALES_CRUDE.set(false)
+	check("krump: gone with crude humour off", button(game, "Ork love poem"), nil)
+	check("krump: the clean ones stay", button(game, "The Ogre Headbutt") ~= nil, true)
+	game.settings.CAMPFIRETALES_CRUDE.set(true)
+
 	-- Krump's emotes.
 	showCategory(game, "Krump Emotes")
 	check("krump: a button per emote", button(game, "/waaagh") ~= nil and button(game, "/loktar") ~= nil, true)
@@ -1098,7 +1152,7 @@ else
 	game.env.SlashCmdList.KRUMP("off")
 	game:wait(1)
 	check("krump: switched off, no Ork categories", categoryNames(game),
-		"Greetings, Small Talk, Jokes, Crude Jokes, Riddles, Short Stories, Tales of Glory, Spooky Tales, Songs, Toasts, Fireside, Farewells, Your Own")
+		"Greetings, Small Talk, Jokes, Crude Jokes, Insults, Riddles, Short Stories, Tavern Tales, Tales of Glory, Spooky Tales, Songs, Toasts, Fireside, Farewells, Your Own")
 	check("krump: back to the first category when Krump's goes", frame.Title.text, "Greetings")
 	check("krump: no accent line", frame.AccentButton.shown, false)
 	click(game, "Well met")

@@ -60,6 +60,10 @@ function ns.BuildOptions()
 		"A button with a single action on it, such as poking the fire, does it as soon as you click. Switch this off to have actions go into the chat line like everything else, so you can change them before pressing Enter.",
 		ns.DEFAULTS.actionsNow, "actionsNow")
 
+	checkbox("CAMPFIRETALES_CRUDE", "Crude humour",
+		"The Crude Jokes, Insults and Tavern Tales categories, and the rude ones among Ork Yarns and Troll Tales. Untick to hide them, for when you are somewhere they would not go down well.",
+		ns.DEFAULTS.crude, "crude")
+
 	checkbox("CAMPFIRETALES_ACCENTS", "Krump and Juju categories",
 		"While Krump or Juju is talking on this character, adds tales written for an Ork or a troll, and a button for each of their emotes.",
 		ns.DEFAULTS.accents, "accents")

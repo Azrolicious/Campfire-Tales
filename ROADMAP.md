@@ -11,5 +11,6 @@ Ideas waiting their turn. Not part of the addon itself.
 
 ## Done
 
+- Properly crude: filthier Crude Jokes, Insults to say to your friends' faces, Tavern Tales, and a Crude humour switch (1.2.0)
 - Tales told in parts, with time to read and a beat before the punchline; the whole tale in a block of text under its buttons; Crude Jokes and Tales of Glory (1.1.0)
 - The first version: categories, stories told a line at a time, the Welcoming Campfire countdown, your own buttons, and Krump and Juju (1.0.0)
